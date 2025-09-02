@@ -1,14 +1,15 @@
 package PaymentSystem;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 public class Payment {
     private final String id;
-    private int amount;
+    private BigDecimal amount;
     private String currency;
     private PaymentStatus status;
 
-    public Payment(int amount, String currency) {
+    public Payment(BigDecimal amount, String currency) {
         this.id = UUID.randomUUID().toString();
         this.amount = amount;
         this.currency = currency;
@@ -18,7 +19,7 @@ public class Payment {
     public String getId() {
         return id;
     }
-    public int getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
     public String getCurrency() {
