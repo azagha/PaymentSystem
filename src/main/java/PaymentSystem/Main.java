@@ -7,7 +7,7 @@ public class Main {
     public static void main(String[] args) {
         PaymentService service = new PaymentService();
         Scanner scanner = new Scanner(System.in);
-
+// test
         while(true){
             System.out.println("Choose an Option :");
             System.out.println("1. Create new Payment");
