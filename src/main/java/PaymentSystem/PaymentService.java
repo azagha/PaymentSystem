@@ -13,6 +13,9 @@ public class PaymentService {
 
 
     public Optional<Payment> addPayment(BigDecimal amount, String currency) {
+        if(amount == null){
+            throw new IllegalArgumentException("Amount cannot be null");
+        }
         if(amount.compareTo(BigDecimal.ONE) < 0){
             Payment rejected = new Payment(amount, currency);
             rejected.setStatus(PaymentStatus.REJECTED);
