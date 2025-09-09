@@ -8,12 +8,16 @@ public class Payment {
     private BigDecimal amount;
     private String currency;
     private PaymentStatus status;
+    private final List<Refund> refunds;
+    private final PaymentType paymentType;
 
-    public Payment(BigDecimal amount, String currency) {
+    public Payment(BigDecimal amount, String currency, PaymentType paymentType) {
         this.id = UUID.randomUUID().toString();
         this.amount = amount;
         this.currency = currency;
         this.status = PaymentStatus.PENDING;
+        this.refunds = new ArrayList<>();
+        this.paymentType = paymentType;
     }
 
     public String getId() {
@@ -37,6 +41,7 @@ public class Payment {
         return "Payment { Id: " + id +
                 ", Amount: " + amount +
                 ", Currency: " + currency +
+                ", Type: " + paymentType +
                 ", Status: " + status + "}";
     }
 
