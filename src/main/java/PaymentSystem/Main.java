@@ -2,6 +2,10 @@ package PaymentSystem;
 
 import java.math.BigDecimal;
 import java.util.Scanner;
+import PaymentSystem.PaymentFactory;
+import PaymentSystem.PaymentType;
+import java.math.BigDecimal;
+
 
 public class Main {
     public static void main(String[] args) {
@@ -20,12 +24,29 @@ public class Main {
                 case 1: {
                     System.out.println("Enter Amount :");
                     BigDecimal amount = scanner.nextBigDecimal();
-                    System.out.println("Enter Currency :");
+                    System.out.println("Enter Currency (USD, EUR, JOD) :");
                     String currency = scanner.next();
+                    System.out.println("Enter Type of Payment (Card, Bank, Wallet) :");
+                    String paymentType = scanner.next();
 
-                    service.addPayment(amount, currency).ifPresentOrElse(
-                            payment -> System.out.println("Created :" + payment),
-                            () -> System.out.println("Payment Rejected"));
+                    PaymentType type;
+                    try{
+                        type = PaymentType.valueOf(paymentType.toUpperCase());
+                    }catch(IllegalArgumentException e){
+                        System.out.println("Invalid Payment Type. Allowed Types are: Card, Bank, Wallet");
+                        break;
+                    }
+
+                    try {
+                        Payment payment = PaymentFactory.createPayment(type, amount, currency);
+
+                        service.addPayment(payment.getAmount(), payment.getCurrency(), type).ifPresentOrElse(
+                                p -> System.out.println("Created :" + p),
+                                () -> System.out.println("Payment Rejected"));
+
+                    }  catch (InvalidPaymentException e) {
+                        System.out.println("Payment Creation Failed: "+e.getMessage());
+                    }
                     break;
                 }
                 case 2: {
@@ -36,11 +57,11 @@ public class Main {
                 case 3: {
                     System.out.println("Enter Payment Id to Refund :");
                     String id  = scanner.next();
-                    if(service.refundPayment(id)){
-                        System.out.println("Refund Successful");
-                    }else{
-                        System.out.println("Refund Failed, Check Id");
-                    }
+
+                    service.getRefund(id).ifPresentOrElse(
+                            refund -> System.out.println("Refund Created: "+refund),
+                            () -> System.out.println("Refund Failed, Check Payment Id")
+                    );
                     break;
                 }
                 case 4: {

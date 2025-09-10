@@ -6,41 +6,54 @@ import java.util.stream.Collectors;
 
 public class PaymentService {
     private final Map<String, Payment> payments;
+    private final Map<String, Refund> refunds;
 
     public PaymentService() {
         this.payments = new HashMap<>();
+        this.refunds = new HashMap<>();
     }
 
-
-    public Optional<Payment> addPayment(BigDecimal amount, String currency) {
-        if(amount == null){
+    // Add Payment
+    public Optional<Payment> addPayment(BigDecimal amount, String currency, PaymentType paymentType) {
+        if (amount == null) {
             throw new IllegalArgumentException("Amount cannot be null");
         }
-        if(amount.compareTo(BigDecimal.ONE) < 0){
-            Payment rejected = new Payment(amount, currency);
+        if (amount.compareTo(BigDecimal.ONE) < 0) {
+            Payment rejected = new Payment(amount, currency, paymentType);
             rejected.setStatus(PaymentStatus.REJECTED);
             payments.put(rejected.getId(), rejected);
             return Optional.of(rejected);
         }
-        Payment newPayment = new Payment(amount, currency);
+        Payment newPayment = new Payment(amount, currency, paymentType);
         newPayment.setStatus(PaymentStatus.SUCCESS);
         payments.put(newPayment.getId(), newPayment);
         return Optional.of(newPayment);
     }
 
+    // List Payments
     public List<Payment> listPayments() {
         return payments.values().stream().collect(Collectors.toList());
     }
 
-    public boolean refundPayment(String id){
+    // Change Payment Status to Refunded
+    public boolean refundPayment(String id) {
         Payment payment = payments.get(id);
-        if(payment != null && payment.getStatus() == PaymentStatus.SUCCESS){
+        if (payment != null && payment.getStatus() == PaymentStatus.SUCCESS) {
             payment.setStatus(PaymentStatus.REFUNDED);
             return true;
         }
         return false;
     }
 
+    public Optional<Refund> getRefund(String paymentId) {
+        Payment payment = payments.get(paymentId);
+        if (payment == null || payment.getStatus() != PaymentStatus.SUCCESS) {
+            return Optional.empty();
+        }
+
+        Refund refund = new Refund(paymentId, payment.getAmount());
+        refunds.put(refund.getId(), refund);
+        payment.setStatus(PaymentStatus.REFUNDED);
+        return Optional.of(refund);
+    }
 }
-
-
