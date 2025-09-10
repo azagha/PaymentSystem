@@ -15,7 +15,7 @@ public class PaymentService {
 
     //Add Payment
     public Optional<Payment> addPayment(BigDecimal amount, String currency,  PaymentType paymentType) {
-        if(amount.compareTo(BigDecimal.ONE) < 0 && amount != null) {
+        if(amount.compareTo(BigDecimal.ONE) < 0) {
             Payment rejected = new Payment(amount, currency,paymentType);
             rejected.setStatus(PaymentStatus.REJECTED);
             payments.put(rejected.getId(), rejected);

@@ -32,6 +32,7 @@ public class Payment {
     public PaymentStatus getStatus() {
         return status;
     }
+    public PaymentType getType() { return paymentType; }
     public void setStatus(PaymentStatus status) {
         this.status = status;
     }

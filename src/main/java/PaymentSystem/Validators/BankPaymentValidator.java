@@ -13,10 +13,13 @@ public class BankPaymentValidator implements PaymentValidation {
 
     @Override
     public void validatePayment(Payment p) throws InvalidPaymentException {
+        if(p == null) {
+            throw new InvalidPaymentException("Payment cannot be null");
+        }
         if (p.getAmount().compareTo(BigDecimal.ONE) < 0) {
             throw new InvalidPaymentException("Amount must be greater than or equal to 1");
         }
-        if (!allowedCurrencies.contains(p.getCurrency())) {
+        if (!allowedCurrencies.contains(p.getCurrency()) || p.getCurrency() == null) {
             throw new InvalidPaymentException("This Currency is not allowed for Bank Payment");
         }
     }

@@ -29,7 +29,13 @@ public class Main {
                     System.out.println("Enter Type of Payment (Card, Bank, Wallet) :");
                     String paymentType = scanner.next();
 
-                    PaymentType type = PaymentType.valueOf(paymentType.toUpperCase());
+                    PaymentType type;
+                    try{
+                        type = PaymentType.valueOf(paymentType.toUpperCase());
+                    }catch(IllegalArgumentException e){
+                        System.out.println("Invalid Payment Type. Allowed Types are: Card, Bank, Wallet");
+                        break;
+                    }
 
                     try {
                         Payment payment = PaymentFactory.createPayment(type, amount, currency);
