@@ -19,6 +19,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <!--- Apache Commons Lang/ Validate -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.14.0</version>
+        </dependency>
+
         <!-- JUnit 5 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -26,6 +33,14 @@
             <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- H2 Database -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.2.224</version>
+        </dependency>
+
     </dependencies>
 
     <!-- Compiler settings -->

@@ -15,15 +15,6 @@ public class PaymentService {
 
     // Add Payment
     public Optional<Payment> addPayment(BigDecimal amount, String currency, PaymentType paymentType) {
-        if (amount == null) {
-            throw new IllegalArgumentException("Amount cannot be null");
-        }
-        if (amount.compareTo(BigDecimal.ONE) < 0) {
-            Payment rejected = new Payment(amount, currency, paymentType);
-            rejected.setStatus(PaymentStatus.REJECTED);
-            payments.put(rejected.getId(), rejected);
-            return Optional.of(rejected);
-        }
         Payment newPayment = new Payment(amount, currency, paymentType);
         newPayment.setStatus(PaymentStatus.SUCCESS);
         payments.put(newPayment.getId(), newPayment);

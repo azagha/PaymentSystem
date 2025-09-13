@@ -5,11 +5,10 @@ import PaymentSystem.Payment;
 import PaymentSystem.InvalidPaymentException;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 
 public class BankPaymentValidator implements PaymentValidation {
-    private final List<String> allowedCurrencies = Arrays.asList("USD", "EUR", "JOD");
+    private final List<String> allowedCurrencies =  AllowedCurrencies.getAllowedCurrencies();
 
     @Override
     public void validatePayment(Payment p) throws InvalidPaymentException {

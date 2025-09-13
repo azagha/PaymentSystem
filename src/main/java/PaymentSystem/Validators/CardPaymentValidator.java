@@ -9,7 +9,7 @@ import java.util.*;
 
 
 public class CardPaymentValidator implements PaymentValidation {
-    private final List<String> allowedCurrencies = Arrays.asList("USD", "EUR", "JOD");
+    private final List<String> allowedCurrencies =  AllowedCurrencies.getAllowedCurrencies();
 
     @Override
     public void validatePayment(Payment p) throws InvalidPaymentException {

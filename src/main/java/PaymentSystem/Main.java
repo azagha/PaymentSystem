@@ -2,9 +2,6 @@ package PaymentSystem;
 
 import java.math.BigDecimal;
 import java.util.Scanner;
-import PaymentSystem.PaymentFactory;
-import PaymentSystem.PaymentType;
-import java.math.BigDecimal;
 
 
 public class Main {
@@ -25,7 +22,7 @@ public class Main {
                     System.out.println("Enter Amount :");
                     BigDecimal amount = scanner.nextBigDecimal();
                     System.out.println("Enter Currency (USD, EUR, JOD) :");
-                    String currency = scanner.next();
+                    String currency = scanner.next().toUpperCase();
                     System.out.println("Enter Type of Payment (Card, Bank, Wallet) :");
                     String paymentType = scanner.next();
 
@@ -38,7 +35,12 @@ public class Main {
                     }
 
                     try {
-                        Payment payment = PaymentFactory.createPayment(type, amount, currency);
+                        Payment payment = switch (type){
+                            case CARD -> PaymentFactory.CreateCardPayment(amount, currency);
+                            case BANK -> PaymentFactory.CreateBankPayment(amount, currency);
+                            case WALLET -> PaymentFactory.CreateWalletPayment(amount, currency);
+                        };
+
 
                         service.addPayment(payment.getAmount(), payment.getCurrency(), type).ifPresentOrElse(
                                 p -> System.out.println("Created :" + p),

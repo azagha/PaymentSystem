@@ -14,6 +14,7 @@ public class Payment {
     private BigDecimal amount;
     private String currency;
     private PaymentStatus status;
+    @ToString.Exclude
     private final List<Refund> refunds;
     private final PaymentType paymentType;
 

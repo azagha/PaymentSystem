@@ -14,34 +14,34 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class PaymentFactoryTest {
     @Test
     void testCreateWalletPayment() throws InvalidPaymentException {
-        Payment payment = PaymentFactory.createPayment(PaymentType.WALLET, new BigDecimal("100"), "EUR");
-        assertEquals(PaymentType.WALLET, payment.getType(), "Payment type should be WALLET");
+        Payment payment = PaymentFactory.CreateWalletPayment(new BigDecimal("100"), "EUR");
+        assertEquals(PaymentType.WALLET, payment.getPaymentType(), "Payment type should be WALLET");
         assertEquals(PaymentStatus.PENDING, payment.getStatus(), "Initial status should be PENDING");
     }
 
     @Test
     void testCreateCardPayment() throws InvalidPaymentException {
-        Payment payment = PaymentFactory.createPayment(PaymentType.CARD, new BigDecimal("20"), "JOD");
-        assertEquals(PaymentType.CARD, payment.getType(), "Payment type should be CARD");
+        Payment payment = PaymentFactory.CreateCardPayment(new BigDecimal("20"), "JOD");
+        assertEquals(PaymentType.CARD, payment.getPaymentType(), "Payment type should be CARD");
         assertEquals(PaymentStatus.PENDING, payment.getStatus(), "Initial status should be PENDING");
     }
 
     @Test
     void testCreateBankPayment() throws InvalidPaymentException {
-        Payment payment = PaymentFactory.createPayment(PaymentType.BANK, new BigDecimal("50"), "USD");
-        assertEquals(PaymentType.BANK, payment.getType(), "Payment type should be BANK");
+        Payment payment = PaymentFactory.CreateBankPayment(new BigDecimal("50"), "USD");
+        assertEquals(PaymentType.BANK, payment.getPaymentType(), "Payment type should be BANK");
         assertEquals(PaymentStatus.PENDING, payment.getStatus(), "Initial status should be PENDING");
     }
 
     @Test
     void testCreatePaymentWithInvalidAmount(){
         assertThrows(InvalidPaymentException.class, () ->
-                PaymentFactory.createPayment(PaymentType.WALLET, new BigDecimal("-10"), "EUR"));
+                PaymentFactory.CreateWalletPayment(new BigDecimal("-10"), "EUR"));
     }
 
     @Test
     void testCreatePaymentWithInvalidCurrency(){
         assertThrows(InvalidPaymentException.class, () ->
-                PaymentFactory.createPayment(PaymentType.WALLET, new BigDecimal("100"), "AED"));
+                PaymentFactory.CreateCardPayment(new BigDecimal("100"), "AED"));
     }
 }

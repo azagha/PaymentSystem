@@ -8,25 +8,24 @@ import java.math.BigDecimal;
 import java.util.*;
 
 public class PaymentFactory {
-    public static Payment createPayment(PaymentType paymentType, BigDecimal amount, String currency) throws InvalidPaymentException {
-        Payment payment = new Payment(amount, currency, paymentType);
+    public static Payment CreateCardPayment(BigDecimal amount, String currency) throws InvalidPaymentException {
+        Payment payment = new Payment(amount, currency, PaymentType.CARD);
         payment.setStatus(PaymentStatus.PENDING);
+        new CardPaymentValidator().validatePayment(payment);
+        return payment;
+    }
 
-        PaymentValidation validator;
-        switch (paymentType) {
-            case CARD:
-                validator = new CardPaymentValidator();
-                break;
-            case BANK:
-                validator = new BankPaymentValidator();
-                break;
-            case WALLET:
-                validator = new WalletPaymentValidator();
-                break;
-            default:
-                throw new InvalidPaymentException("Unknown Payment Type");
-        }
-        validator.validatePayment(payment);
+    public static Payment CreateBankPayment(BigDecimal amount, String currency) throws InvalidPaymentException {
+        Payment payment = new Payment(amount, currency, PaymentType.BANK);
+        payment.setStatus(PaymentStatus.PENDING);
+        new BankPaymentValidator().validatePayment(payment);
+        return payment;
+    }
+
+    public static Payment CreateWalletPayment(BigDecimal amount, String currency) throws InvalidPaymentException {
+        Payment payment = new Payment(amount, currency, PaymentType.WALLET);
+        payment.setStatus(PaymentStatus.PENDING);
+        new WalletPaymentValidator().validatePayment(payment);
         return payment;
     }
 }
