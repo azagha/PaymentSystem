@@ -1,5 +1,6 @@
 package PaymentSystem.Validators;
 
+import PaymentSystem.ConfigReader;
 import PaymentSystem.Payment;
 import PaymentSystem.PaymentValidation;
 import PaymentSystem.InvalidPaymentException;
@@ -9,7 +10,7 @@ import java.util.*;
 
 
 public class CardPaymentValidator implements PaymentValidation {
-    private final List<String> allowedCurrencies =  AllowedCurrencies.getAllowedCurrencies();
+    private final List<String> allowedCurrencies = ConfigReader.getCurrencies();
 
     @Override
     public void validatePayment(Payment p) throws InvalidPaymentException {

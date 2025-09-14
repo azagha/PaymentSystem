@@ -1,5 +1,6 @@
 package PaymentSystem.Validators;
 
+import PaymentSystem.ConfigReader;
 import PaymentSystem.PaymentValidation;
 import PaymentSystem.Payment;
 import PaymentSystem.InvalidPaymentException;
@@ -8,7 +9,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public class BankPaymentValidator implements PaymentValidation {
-    private final List<String> allowedCurrencies =  AllowedCurrencies.getAllowedCurrencies();
+    private final List<String> allowedCurrencies = ConfigReader.getCurrencies();
 
     @Override
     public void validatePayment(Payment p) throws InvalidPaymentException {
