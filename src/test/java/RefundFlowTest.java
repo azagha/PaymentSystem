@@ -9,10 +9,16 @@ public class RefundFlowTest {
     @Test
     public void testRefundFlowHappyPath() throws InvalidPaymentException {
         PaymentService service = new PaymentService();
+        Merchant merchant = new Merchant(1L, "Test Merchant");
 
-        Optional<Payment> added = service.addPayment(new BigDecimal("50"), "JOD", PaymentType.CARD);
+        Customer customer = new Customer("test@example.com", "Test User");
+        customer.setId(1L);
+
+        Payment payment = new Payment(new BigDecimal("50"), "JOD", PaymentType.CARD, customer, merchant);
+
+        Optional<Payment> added = service.addPayment(payment);
         assertTrue(added.isPresent());
-        Payment payment = added.get();
+        Payment addedPayment = added.get();
         assertEquals(PaymentStatus.SUCCESS, payment.getStatus());
 
         Optional<Refund> refundOptional = service.getRefund(payment.getId());

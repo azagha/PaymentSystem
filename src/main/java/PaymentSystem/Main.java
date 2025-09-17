@@ -1,6 +1,10 @@
 package PaymentSystem;
 
+import PaymentSystem.AccessLayer.PaymentRepositoryFactory;
+import PaymentSystem.AccessLayer.PaymentRepositoryPort;
+
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Scanner;
 
 
@@ -15,6 +19,7 @@ public class Main {
             System.out.println("2. List all Payments");
             System.out.println("3. Refund a Payment");
             System.out.println("4. Exit the System");
+            System.out.println("5. list Payments by Customer");
             int choice = scanner.nextInt();
 
             switch (choice){
@@ -34,15 +39,25 @@ public class Main {
                         break;
                     }
 
+                    System.out.println("Enter Customer ID :");
+                    long customerId = scanner.nextLong();
+                    Customer customer = new  Customer();
+                    customer.setId(customerId);
+
+                    System.out.println("Enter Merchant ID:");
+                    long merchantId = scanner.nextLong();
+                    Merchant merchant = new Merchant();
+                    merchant.setId(merchantId);
+
                     try {
                         Payment payment = switch (type){
-                            case CARD -> PaymentFactory.CreateCardPayment(amount, currency);
-                            case BANK -> PaymentFactory.CreateBankPayment(amount, currency);
-                            case WALLET -> PaymentFactory.CreateWalletPayment(amount, currency);
+                            case CARD -> PaymentFactory.CreateCardPayment(amount, currency, customer, merchant);
+                            case BANK -> PaymentFactory.CreateBankPayment(amount, currency, customer, merchant);
+                            case WALLET -> PaymentFactory.CreateWalletPayment(amount, currency, customer, merchant);
                         };
 
 
-                        service.addPayment(payment.getAmount(), payment.getCurrency(), type).ifPresentOrElse(
+                        service.addPayment(payment).ifPresentOrElse(
                                 p -> System.out.println("Created :" + p),
                                 () -> System.out.println("Payment Rejected"));
 
@@ -52,8 +67,28 @@ public class Main {
                     break;
                 }
                 case 2: {
-                    System.out.println("Payments :");
-                    service.listPayments().forEach(System.out::println);
+                    System.out.println("Enter Page Number (Starting from 1) :");
+                    int page  = scanner.nextInt();
+                    System.out.println("Enter Page Size :");
+                    int pageSize = scanner.nextInt();
+
+                    List<Payment> payments = service.listPayments(page, pageSize);
+                    if(payments.isEmpty()){
+                        System.out.println("No payments found");
+                    }else {
+                        for(Payment payment : payments){
+                            System.out.println(
+                                    "ID: " + payment.getId()
+                                    + " | Amount: " + payment.getAmount()
+                                    + " | Currency: " + payment.getCurrency()
+                                    + " | PaymentType: " + payment.getPaymentType()
+                                    + " | Type: " + payment.getPaymentType()
+                                    + " | Customer Id: " + payment.getCustomer().getId()
+                                    + " | Merchant Id: " + payment.getMerchant().getId()
+                            );
+                        }
+
+                    }
                     break;
                 }
                 case 3: {
@@ -69,6 +104,31 @@ public class Main {
                 case 4: {
                     System.out.println("Exiting System...");
                     return;
+                }
+                case 5: {
+                    System.out.println("Enter Customer ID : ");
+                    long customerId = scanner.nextLong();
+                    scanner.nextLine();
+
+                    PaymentRepositoryPort repository = PaymentRepositoryFactory.createPaymentRepository();
+                    List<Payment> payments = repository.findCustomerById(customerId);
+
+                    if(payments.isEmpty()){
+                        System.out.println("No payments found for this Customer");
+                    }else{
+                        for(Payment payment : payments){
+                            System.out.println(
+                                    "ID: " + payment.getId()
+                                    + " | Amount: " + payment.getAmount()
+                                    + " | Currency: " + payment.getCurrency()
+                                    + " | PaymentType: " + payment.getPaymentType()
+                                    + " | Type: " + payment.getPaymentType()
+                                    + " | Customer Id: " + payment.getCustomer().getId()
+                                    + " | Merchant Id: " + payment.getMerchant().getId()
+                            );
+                        }
+                    }
+                    break;
                 }
                 default: {
                     System.out.println("Invalid Option");

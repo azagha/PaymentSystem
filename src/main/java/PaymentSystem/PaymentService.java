@@ -1,6 +1,5 @@
 package PaymentSystem;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -14,16 +13,25 @@ public class PaymentService {
     }
 
     // Add Payment
-    public Optional<Payment> addPayment(BigDecimal amount, String currency, PaymentType paymentType) {
-        Payment newPayment = new Payment(amount, currency, paymentType);
-        newPayment.setStatus(PaymentStatus.SUCCESS);
-        payments.put(newPayment.getId(), newPayment);
-        return Optional.of(newPayment);
+        public Optional<Payment> addPayment(Payment payment) {
+        payment.setStatus(PaymentStatus.SUCCESS);
+        payments.put(payment.getId(), payment);
+        return Optional.of(payment);
     }
 
-    // List Payments
-    public List<Payment> listPayments() {
-        return payments.values().stream().collect(Collectors.toList());
+    // List Payments "Pagination"
+    public List<Payment> listPayments(int page, int pageSize) {
+        List<Payment> allPayments = payments.values().stream().sorted(Comparator.comparing(Payment::getCreatedAt)).collect(Collectors.toList());
+
+        // Pagination Logic
+        int start = (page - 1) * pageSize;
+        int end = Math.min(start + pageSize,  allPayments.size());
+
+        if(start >= allPayments.size() || start < 0) {
+            return Collections.emptyList();
+        }
+
+        return allPayments.subList(start, end);
     }
 
     // Change Payment Status to Refunded
