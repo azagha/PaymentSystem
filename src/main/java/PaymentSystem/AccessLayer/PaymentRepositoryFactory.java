@@ -1,35 +1,32 @@
 package PaymentSystem.AccessLayer;
 
+import PaymentSystem.Payment;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Properties;
+import java.io.InputStream;
 
 public class PaymentRepositoryFactory {
     public static PaymentRepositoryPort createPaymentRepository() {
-        try{
+        try {
             InputStream in = PaymentRepositoryFactory.class
                     .getClassLoader()
                     .getResourceAsStream("config/persistence.properties");
             Properties props = new Properties();
-            props.load(in);
+            if (in != null) props.load(in);
 
             String impl = props.getProperty("persistence.impl", "jdbc");
 
-            if(("jdbc".equalsIgnoreCase(impl))){
-                Connection connection = DriverManager.getConnection("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1", "sa","");
+            if ("jdbc".equalsIgnoreCase(impl)) {
+                Connection connection = DriverManager.getConnection("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1", "sa", "");
                 return new JdbcPaymentRepositoryAdapter(connection);
-            }else{
-                EntityManagerFactory emf = Persistence.createEntityManagerFactory("PaymentPU");
-                EntityManager em = emf.createEntityManager();
+            } else {
+                EntityManager em = JpaFactory.createEntityManager();
                 return new JpaPaymentRepositoryAdapter(em);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException("Failed to create PaymentRepository", e);
         }
     }
