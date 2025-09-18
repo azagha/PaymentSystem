@@ -12,7 +12,6 @@ import lombok.ToString;
 @Table(name = "merchants")
 public class Merchant {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String merchantName;
 

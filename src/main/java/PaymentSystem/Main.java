@@ -1,16 +1,26 @@
 package PaymentSystem;
 
+import PaymentSystem.AccessLayer.JpaPaymentRepositoryAdapter;
 import PaymentSystem.AccessLayer.PaymentRepositoryFactory;
 import PaymentSystem.AccessLayer.PaymentRepositoryPort;
+import jakarta.persistence.EntityManager;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
-
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 public class Main {
     public static void main(String[] args) {
-        PaymentService service = new PaymentService();
+        // Hide Hibernate logs temp
+        Logger.getLogger("org.hibernate").setLevel(Level.SEVERE);
+        Logger.getLogger("org.hibernate.SQL").setLevel(Level.SEVERE);
+        Logger.getLogger("org.hibernate.type").setLevel(Level.SEVERE);
+
+        PaymentRepositoryPort repository = PaymentRepositoryFactory.createPaymentRepository();
+        PaymentService service = new PaymentService(repository);
         Scanner scanner = new Scanner(System.in);
 
         while(true){
@@ -21,6 +31,7 @@ public class Main {
             System.out.println("4. Exit the System");
             System.out.println("5. list Payments by Customer");
             int choice = scanner.nextInt();
+
 
             switch (choice){
                 case 1: {
@@ -41,13 +52,14 @@ public class Main {
 
                     System.out.println("Enter Customer ID :");
                     long customerId = scanner.nextLong();
-                    Customer customer = new  Customer();
-                    customer.setId(customerId);
 
                     System.out.println("Enter Merchant ID:");
                     long merchantId = scanner.nextLong();
-                    Merchant merchant = new Merchant();
-                    merchant.setId(merchantId);
+
+                    Customer customer = repository.createOrGetCustomer(customerId);
+                    Merchant merchant = repository.createOrGetMerchant(merchantId);
+
+
 
                     try {
                         Payment payment = switch (type){
@@ -56,10 +68,21 @@ public class Main {
                             case WALLET -> PaymentFactory.CreateWalletPayment(amount, currency, customer, merchant);
                         };
 
-
-                        service.addPayment(payment).ifPresentOrElse(
-                                p -> System.out.println("Created :" + p),
-                                () -> System.out.println("Payment Rejected"));
+                        Optional<Payment> createdPayment = service.addPayment(payment);
+                        if(createdPayment.isPresent()){
+                            System.out.println("Payment Created Successfully");
+                            System.out.println(
+                                    "ID: " + payment.getId()
+                                            + " | Amount: " + payment.getAmount()
+                                            + " | Currency: " + payment.getCurrency()
+                                            + " | PaymentType: " + payment.getPaymentType()
+                                            + " | Customer Id: " + payment.getCustomer().getId()
+                                            + " | Merchant Id: " + payment.getMerchant().getId()
+                                            + " | Status: " + payment.getStatus()
+                            );
+                        }else{
+                            System.out.println("Payment Not Created Successfully");
+                        }
 
                     }  catch (InvalidPaymentException e) {
                         System.out.println("Payment Creation Failed: "+e.getMessage());
@@ -110,8 +133,7 @@ public class Main {
                     long customerId = scanner.nextLong();
                     scanner.nextLine();
 
-                    PaymentRepositoryPort repository = PaymentRepositoryFactory.createPaymentRepository();
-                    List<Payment> payments = repository.findCustomerById(customerId);
+                    List<Payment> payments = repository.findPaymentsByCustomerId(customerId);
 
                     if(payments.isEmpty()){
                         System.out.println("No payments found for this Customer");

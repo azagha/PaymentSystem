@@ -26,11 +26,11 @@ public class Payment {
     private PaymentType paymentType;
 
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "merchant_id")
     private Merchant merchant;
 
