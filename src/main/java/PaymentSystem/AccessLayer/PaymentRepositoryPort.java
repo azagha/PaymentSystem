@@ -1,8 +1,10 @@
 package PaymentSystem.AccessLayer;
 
-import PaymentSystem.Payment;
-import PaymentSystem.Customer;
-import PaymentSystem.Merchant;
+import PaymentSystem.Entities.Payment;
+import PaymentSystem.Entities.Customer;
+import PaymentSystem.Entities.Merchant;
+import PaymentSystem.Entities.Refund;
+
 import java.util.List;
 
 public interface PaymentRepositoryPort {
@@ -12,4 +14,6 @@ public interface PaymentRepositoryPort {
     List<Payment> findPaymentsByCustomerId(long customerId);
     Customer createOrGetCustomer(long customerId);
     Merchant createOrGetMerchant(long merchantId);
+    void saveRefund(Refund refund);
+    List<Refund> findRefundsByPaymentId(String paymentId);
 }

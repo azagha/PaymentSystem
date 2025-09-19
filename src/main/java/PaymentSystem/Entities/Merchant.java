@@ -1,4 +1,4 @@
-package PaymentSystem;
+package PaymentSystem.Entities;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -19,6 +19,10 @@ public class Merchant {
 
     public Merchant(String merchantName) {
         this.merchantName = merchantName;
+    }
+
+    public Merchant(long id) {
+        this.id = id;
     }
 
     public Merchant(Long id, String merchantName) {

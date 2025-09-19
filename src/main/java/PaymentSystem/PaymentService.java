@@ -1,6 +1,8 @@
 package PaymentSystem;
 
 import PaymentSystem.AccessLayer.PaymentRepositoryPort;
+import PaymentSystem.Entities.Payment;
+import PaymentSystem.Entities.Refund;
 
 import java.util.List;
 import java.util.Optional;
@@ -48,15 +50,21 @@ public class PaymentService {
         return false;
     }
 
+    // Create Refund (one per payment)
     public Optional<Refund> getRefund(String paymentId) {
         Payment payment = repository.findById(paymentId);
-        if (payment == null || payment.getStatus() != PaymentStatus.SUCCESS) {
-            return Optional.empty();
-        }
-        payment.setStatus(PaymentStatus.REFUNDED);
-        repository.save(payment);
 
-        Refund refund = new Refund(paymentId, payment.getAmount());
+        if (payment == null || payment.getStatus() != PaymentStatus.SUCCESS || payment.getRefund() != null) {
+            return Optional.empty(); // no refund if already refunded or payment invalid
+        }
+
+        payment.setStatus(PaymentStatus.REFUNDED);
+
+        Refund refund = new Refund(payment, payment.getAmount());
+        payment.setRefund(refund);  // assign single refund
+
+        repository.save(payment);   // save updated payment
+
         return Optional.of(refund);
     }
 }

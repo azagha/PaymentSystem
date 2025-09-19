@@ -1,4 +1,4 @@
-package PaymentSystem;
+package PaymentSystem.Entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +18,10 @@ public class Customer {
     private LocalDateTime createdDate;
 
     public Customer(){}
+
+    public Customer(Long id) {
+        this.id = id;
+    }
 
     public Customer(String email, String fullName) {
         this.email = email;

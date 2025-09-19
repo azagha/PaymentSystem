@@ -1,7 +1,7 @@
 package PaymentSystem.Validators;
 
 import PaymentSystem.ConfigReader;
-import PaymentSystem.Payment;
+import PaymentSystem.Entities.Payment;
 import PaymentSystem.PaymentValidation;
 import PaymentSystem.InvalidPaymentException;
 

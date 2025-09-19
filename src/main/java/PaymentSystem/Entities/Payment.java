@@ -1,8 +1,10 @@
-package PaymentSystem;
+package PaymentSystem.Entities;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.UUID;
+
+import PaymentSystem.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -25,7 +27,6 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private PaymentType paymentType;
 
-
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "customer_id")
     private Customer customer;
@@ -34,12 +35,11 @@ public class Payment {
     @JoinColumn(name = "merchant_id")
     private Merchant merchant;
 
-    @Transient
+    @OneToOne(mappedBy = "payment", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
-    private List<Refund> refunds;
+    private Refund refund;
 
-
-    //Constructor For New Payment
+    // Constructor for new payment
     public Payment(BigDecimal amount, String currency, PaymentType paymentType, Customer customer, Merchant merchant) {
         this.id = UUID.randomUUID().toString();
         this.amount = amount;
@@ -51,7 +51,7 @@ public class Payment {
         this.createdAt = LocalDateTime.now();
     }
 
-    //Constructor for database retrieval
+    // Constructor for database retrieval
     public Payment(String id, BigDecimal amount, String currency, PaymentStatus status, PaymentType paymentType, Customer customer, LocalDateTime createdAt) {
         this.id = id;
         this.amount = amount;
@@ -62,23 +62,34 @@ public class Payment {
         this.createdAt = createdAt;
     }
 
-    //for JDBC/manual mapping
+    // For JDBC/manual mapping without customer and merchant
     public Payment(String id, BigDecimal amount, String currency, PaymentStatus status, PaymentType paymentType, LocalDateTime createdAt) {
         this.id = id;
         this.amount = amount;
         this.currency = currency;
         this.status = status;
         this.paymentType = paymentType;
+    }
+
+    public Payment(String id) {
+        this.id = id;
+    }
+
+    public Payment(String id, BigDecimal amount, String currency, PaymentStatus status, PaymentType paymentType, Customer customer, Merchant merchant, LocalDateTime createdAt) {
+        this.id = id;
+        this.amount = amount;
+        this.currency = currency;
+        this.status = status;
+        this.paymentType = paymentType;
+        this.customer = customer;
+        this.merchant = merchant;
         this.createdAt = createdAt;
-        this.refunds = new ArrayList<>();
     }
 
+    // Constructor for JPA
+    protected Payment() {}
 
-    //Constructor for JPA, Ensures refunds is never null
-    protected Payment(){
-        this.refunds = new ArrayList<>();
-    }
-
+    @Override
     public String toString() {
         return "Payment ( id = " + id +
                 ", amount = " + amount +
@@ -86,8 +97,8 @@ public class Payment {
                 ", createdAt = " + createdAt +
                 ", status = " + status +
                 ", paymentType = " + paymentType +
-                ", customerId = " + customer.getId() +
-                ", merchantId = " + merchant.getId() +
+                ", customerId = " + (customer != null ? customer.getId() : null) +
+                ", merchantId = " + (merchant != null ? merchant.getId() : null) +
                 " )";
     }
 }

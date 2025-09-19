@@ -1,7 +1,7 @@
 package PaymentSystem.AccessLayer;
 
-import PaymentSystem.Payment;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -49,7 +49,8 @@ public class PaymentRepositoryFactory {
 
             } else {
                 // JPA implementation
-                EntityManager em = JpaFactory.createEntityManager();
+                EntityManagerFactory emf = jakarta.persistence.Persistence.createEntityManagerFactory("PaymentPU");
+                EntityManager em = emf.createEntityManager();
                 return new JpaPaymentRepositoryAdapter(em);
             }
 

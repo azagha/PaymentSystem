@@ -1,6 +1,9 @@
 package PaymentValidatorsTest;
 
 import PaymentSystem.*;
+import PaymentSystem.Entities.Customer;
+import PaymentSystem.Entities.Merchant;
+import PaymentSystem.Entities.Payment;
 import PaymentSystem.Validators.BankPaymentValidator;
 import org.junit.jupiter.api.Test;
 

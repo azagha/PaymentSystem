@@ -1,11 +1,13 @@
 package PaymentSystem;
 
+import PaymentSystem.Entities.Customer;
+import PaymentSystem.Entities.Merchant;
+import PaymentSystem.Entities.Payment;
 import PaymentSystem.Validators.BankPaymentValidator;
 import PaymentSystem.Validators.CardPaymentValidator;
 import PaymentSystem.Validators.WalletPaymentValidator;
 
 import java.math.BigDecimal;
-import java.util.*;
 
 public class PaymentFactory {
     public static Payment CreateCardPayment(BigDecimal amount, String currency, Customer customer, Merchant merchant) throws InvalidPaymentException {

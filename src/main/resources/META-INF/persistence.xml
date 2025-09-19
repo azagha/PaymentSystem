@@ -2,9 +2,9 @@
 <persistence xmlns="https://jakarta.ee/xml/ns/persistence"
              version="3.0">
     <persistence-unit name="PaymentPU" transaction-type="RESOURCE_LOCAL">
-        <class>PaymentSystem.Payment</class>
-        <class>PaymentSystem.Customer</class>
-        <class>PaymentSystem.Merchant</class>
+        <class>PaymentSystem.Entities.Payment</class>
+        <class>PaymentSystem.Entities.Customer</class>
+        <class>PaymentSystem.Entities.Merchant</class>
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="org.h2.Driver"/>
             <property name="jakarta.persistence.jdbc.url" value="jdbc:h2:~/paymentdb;AUTO_SERVER=TRUE"/>

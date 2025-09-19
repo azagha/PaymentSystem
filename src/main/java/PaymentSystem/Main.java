@@ -1,9 +1,10 @@
 package PaymentSystem;
 
-import PaymentSystem.AccessLayer.JpaPaymentRepositoryAdapter;
 import PaymentSystem.AccessLayer.PaymentRepositoryFactory;
 import PaymentSystem.AccessLayer.PaymentRepositoryPort;
-import jakarta.persistence.EntityManager;
+import PaymentSystem.Entities.Customer;
+import PaymentSystem.Entities.Merchant;
+import PaymentSystem.Entities.Payment;
 
 import java.math.BigDecimal;
 import java.util.List;

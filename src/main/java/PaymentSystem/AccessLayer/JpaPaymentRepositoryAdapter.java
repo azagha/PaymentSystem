@@ -1,8 +1,9 @@
 package PaymentSystem.AccessLayer;
 
-import PaymentSystem.Payment;
-import PaymentSystem.Customer;
-import PaymentSystem.Merchant;
+import PaymentSystem.Entities.Payment;
+import PaymentSystem.Entities.Customer;
+import PaymentSystem.Entities.Merchant;
+import PaymentSystem.Entities.Refund;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 
@@ -16,26 +17,46 @@ public class JpaPaymentRepositoryAdapter implements PaymentRepositoryPort {
         this.entityManager = entityManager;
     }
 
+    // Save or update a Payment
     @Override
     public void save(Payment payment) {
         entityManager.getTransaction().begin();
 
-        Customer customer = createOrGetCustomer(payment.getCustomer().getId());
+        // Handle Customer
+        Customer customer = payment.getCustomer();
+        if (customer.getId() == 0 || entityManager.find(Customer.class, customer.getId()) == null) {
+            customer.setCreatedDate(java.time.LocalDateTime.now());
+            entityManager.persist(customer);
+        } else {
+            customer = entityManager.merge(customer);
+        }
         payment.setCustomer(customer);
 
-        Merchant merchant = createOrGetMerchant(payment.getMerchant().getId());
+        // Handle Merchant
+        Merchant merchant = payment.getMerchant();
+        if (merchant.getId() == 0 || entityManager.find(Merchant.class, merchant.getId()) == null) {
+            entityManager.persist(merchant);
+        } else {
+            merchant = entityManager.merge(merchant);
+        }
         payment.setMerchant(merchant);
 
-        entityManager.persist(payment);
+        // Ensure ID
+        if (payment.getId() == null || payment.getId().isEmpty()) {
+            payment.setId(java.util.UUID.randomUUID().toString());
+        }
 
+        entityManager.merge(payment);
         entityManager.getTransaction().commit();
     }
 
+    // Find Payment by ID
     @Override
     public Payment findById(String id) {
         return entityManager.find(Payment.class, id);
     }
 
+    // List all Payments with pagination
     @Override
     public List<Payment> findAll(int limit, int offset) {
         TypedQuery<Payment> query = entityManager.createQuery(
@@ -45,6 +66,7 @@ public class JpaPaymentRepositoryAdapter implements PaymentRepositoryPort {
         return query.getResultList();
     }
 
+    // Find Payments by Customer ID
     @Override
     public List<Payment> findPaymentsByCustomerId(long customerId) {
         TypedQuery<Payment> query = entityManager.createQuery(
@@ -54,6 +76,7 @@ public class JpaPaymentRepositoryAdapter implements PaymentRepositoryPort {
         return query.getResultList();
     }
 
+    // Create or get existing Customer
     @Override
     public Customer createOrGetCustomer(long customerId) {
         Customer customer = entityManager.find(Customer.class, customerId);
@@ -66,6 +89,7 @@ public class JpaPaymentRepositoryAdapter implements PaymentRepositoryPort {
         return customer;
     }
 
+    // Create or get existing Merchant
     @Override
     public Merchant createOrGetMerchant(long merchantId) {
         Merchant merchant = entityManager.find(Merchant.class, merchantId);
@@ -76,4 +100,21 @@ public class JpaPaymentRepositoryAdapter implements PaymentRepositoryPort {
         }
         return merchant;
     }
+
+    // Save a Refund
+    @Override
+    public void saveRefund(Refund refund) {
+        entityManager.persist(refund);
+    }
+
+    @Override
+    public List<Refund> findRefundsByPaymentId(String paymentId) {
+        TypedQuery<Refund> query = entityManager.createQuery(
+                "SELECT r FROM Refund r WHERE r.payment.id = :paymentId ORDER BY r.createdAt DESC",
+                Refund.class
+        );
+        query.setParameter("paymentId", paymentId);
+        return query.getResultList();
+    }
+
 }
