@@ -1,6 +1,8 @@
 package PaymentSystem;
 
 import PaymentSystem.AccessLayer.PaymentRepositoryPort;
+import PaymentSystem.Entities.Customer;
+import PaymentSystem.Entities.Merchant;
 import PaymentSystem.Entities.Payment;
 import PaymentSystem.Entities.Refund;
 
@@ -21,9 +23,17 @@ public class PaymentService {
             // Set initial status
             payment.setStatus(PaymentStatus.SUCCESS);
 
-            // Ensure customer and merchant exist
-            repository.createOrGetCustomer(payment.getCustomer().getId());
-            repository.createOrGetMerchant(payment.getMerchant().getId());
+            Customer customer = repository.getCustomer(payment.getCustomer().getId());
+            if (customer == null) {
+                customer = repository.createCustomer(payment.getCustomer().getId());
+            }
+            payment.setCustomer(customer);
+
+            Merchant merchant = repository.getMerchant(payment.getMerchant().getId());
+            if (merchant == null) {
+                merchant = repository.createMerchant(payment.getMerchant().getId());
+            }
+            payment.setMerchant(merchant);
 
             // Save payment in DB
             repository.save(payment);
@@ -51,7 +61,7 @@ public class PaymentService {
     }
 
     // Create Refund (one per payment)
-    public Optional<Refund> getRefund(String paymentId) {
+    public Optional<Refund> createRefundforPayment(String paymentId) {
         Payment payment = repository.findById(paymentId);
 
         if (payment == null || payment.getStatus() != PaymentStatus.SUCCESS || payment.getRefund() != null) {
@@ -62,6 +72,7 @@ public class PaymentService {
 
         Refund refund = new Refund(payment, payment.getAmount());
         payment.setRefund(refund);  // assign single refund
+        repository.saveRefund(refund);
 
         repository.save(payment);   // save updated payment
 

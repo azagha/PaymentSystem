@@ -8,6 +8,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 
 import java.util.List;
+import java.util.UUID;
 
 public class JpaPaymentRepositoryAdapter implements PaymentRepositoryPort {
 
@@ -21,33 +22,30 @@ public class JpaPaymentRepositoryAdapter implements PaymentRepositoryPort {
     @Override
     public void save(Payment payment) {
         entityManager.getTransaction().begin();
+        try {
+            // Use only interface methods
+            Customer customer = getCustomer(payment.getCustomer().getId());
+            if (customer == null) {
+                customer = createCustomer(payment.getCustomer().getId());
+            }
+            payment.setCustomer(customer);
 
-        // Handle Customer
-        Customer customer = payment.getCustomer();
-        if (customer.getId() == 0 || entityManager.find(Customer.class, customer.getId()) == null) {
-            customer.setCreatedDate(java.time.LocalDateTime.now());
-            entityManager.persist(customer);
-        } else {
-            customer = entityManager.merge(customer);
+            Merchant merchant = getMerchant(payment.getMerchant().getId());
+            if (merchant == null) {
+                merchant = createMerchant(payment.getMerchant().getId());
+            }
+            payment.setMerchant(merchant);
+
+            if (payment.getId() == null || payment.getId().isEmpty()) {
+                payment.setId(UUID.randomUUID().toString());
+            }
+
+            entityManager.merge(payment);
+            entityManager.getTransaction().commit();
+        } catch (Exception e) {
+            entityManager.getTransaction().rollback();
+            throw new RuntimeException("Error saving payment", e);
         }
-        payment.setCustomer(customer);
-
-        // Handle Merchant
-        Merchant merchant = payment.getMerchant();
-        if (merchant.getId() == 0 || entityManager.find(Merchant.class, merchant.getId()) == null) {
-            entityManager.persist(merchant);
-        } else {
-            merchant = entityManager.merge(merchant);
-        }
-        payment.setMerchant(merchant);
-
-        // Ensure ID
-        if (payment.getId() == null || payment.getId().isEmpty()) {
-            payment.setId(java.util.UUID.randomUUID().toString());
-        }
-
-        entityManager.merge(payment);
-        entityManager.getTransaction().commit();
     }
 
     // Find Payment by ID
@@ -78,27 +76,34 @@ public class JpaPaymentRepositoryAdapter implements PaymentRepositoryPort {
 
     // Create or get existing Customer
     @Override
-    public Customer createOrGetCustomer(long customerId) {
-        Customer customer = entityManager.find(Customer.class, customerId);
-        if (customer == null) {
-            customer = new Customer();
-            customer.setId(customerId);
-            customer.setCreatedDate(java.time.LocalDateTime.now());
-            entityManager.persist(customer);
-        }
+    public Customer createCustomer(long customerId) {
+        Customer customer = new Customer();
+        customer.setId(customerId);
+        customer.setCreatedDate(java.time.LocalDateTime.now());
+        entityManager.getTransaction().begin();
+        entityManager.persist(customer);
+        entityManager.getTransaction().commit();
         return customer;
     }
 
-    // Create or get existing Merchant
     @Override
-    public Merchant createOrGetMerchant(long merchantId) {
-        Merchant merchant = entityManager.find(Merchant.class, merchantId);
-        if (merchant == null) {
-            merchant = new Merchant();
-            merchant.setId(merchantId);
-            entityManager.persist(merchant);
-        }
+    public Customer getCustomer(long customerId) {
+        return entityManager.find(Customer.class, customerId);
+    }
+
+    @Override
+    public Merchant createMerchant(long merchantId) {
+        Merchant merchant = new Merchant();
+        merchant.setId(merchantId);
+        entityManager.getTransaction().begin();
+        entityManager.persist(merchant);
+        entityManager.getTransaction().commit();
         return merchant;
+    }
+
+    @Override
+    public Merchant getMerchant(long merchantId) {
+        return entityManager.find(Merchant.class, merchantId);
     }
 
     // Save a Refund

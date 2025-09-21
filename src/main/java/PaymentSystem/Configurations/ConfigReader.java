@@ -1,4 +1,4 @@
-package PaymentSystem;
+package PaymentSystem.Configurations;
 
 import java.io.IOException;
 import java.io.InputStream;

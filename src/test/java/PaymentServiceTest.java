@@ -86,7 +86,7 @@ public class PaymentServiceTest {
 
         service.addPayment(payment);
 
-        Optional<Refund> refund = service.getRefund(payment.getId());
+        Optional<Refund> refund = service.createRefundforPayment(payment.getId());
         assertTrue(refund.isPresent(), "Refund should be created");
 
         Payment updated = repo.findById(payment.getId());
@@ -97,7 +97,7 @@ public class PaymentServiceTest {
 
     @Test
     public void testRefundFailsForNonExistentPayment() {
-        Optional<Refund> refund = service.getRefund("non-existent-id");
+        Optional<Refund> refund = service.createRefundforPayment("non-existent-id");
         assertTrue(refund.isEmpty(), "Refund should fail for non-existent payment");
     }
 
@@ -117,11 +117,11 @@ public class PaymentServiceTest {
         service.addPayment(payment);
 
         // First refund succeeds
-        Optional<Refund> firstRefund = service.getRefund(payment.getId());
+        Optional<Refund> firstRefund = service.createRefundforPayment(payment.getId());
         assertTrue(firstRefund.isPresent(), "First refund should succeed");
 
         // Second refund should fail
-        Optional<Refund> secondRefund = service.getRefund(payment.getId());
+        Optional<Refund> secondRefund = service.createRefundforPayment(payment.getId());
         assertTrue(secondRefund.isEmpty(), "Second refund should fail if already refunded");
     }
 }

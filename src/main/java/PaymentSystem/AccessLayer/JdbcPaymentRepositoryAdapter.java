@@ -21,9 +21,17 @@ public class JdbcPaymentRepositoryAdapter implements PaymentRepositoryPort {
     // Save or update a Payment
     @Override
     public void save(Payment payment) {
-        createOrGetCustomer(payment.getCustomer().getId());
-        createOrGetMerchant(payment.getMerchant().getId());
+        Customer customer = getCustomer(payment.getCustomer().getId());
+        if (customer == null) {
+            customer = createCustomer(payment.getCustomer().getId());
+        }
+        payment.setCustomer(customer);
 
+        Merchant merchant = getMerchant(payment.getMerchant().getId());
+        if (merchant == null) {
+            merchant = createMerchant(payment.getMerchant().getId());
+        }
+        payment.setMerchant(merchant);
         String updateSql = "UPDATE payments SET amount=?, currency=?, status=?, paymentType=?, customer_id=?, merchant_id=?, created_at=? WHERE id=?";
         try (PreparedStatement updateStmt = connection.prepareStatement(updateSql)) {
             updateStmt.setBigDecimal(1, payment.getAmount());
@@ -100,46 +108,60 @@ public class JdbcPaymentRepositoryAdapter implements PaymentRepositoryPort {
     }
 
     @Override
-    public Customer createOrGetCustomer(long customerId) {
+    public Customer createCustomer(long customerId) {
         try {
-            String select = "SELECT id FROM customers WHERE id = ?";
-            try (PreparedStatement stmt = connection.prepareStatement(select)) {
-                stmt.setLong(1, customerId);
-                ResultSet rs = stmt.executeQuery();
-                if (rs.next()) return new Customer(customerId);
-            }
-
             String insert = "INSERT INTO customers (id) VALUES (?)";
             try (PreparedStatement stmt = connection.prepareStatement(insert)) {
                 stmt.setLong(1, customerId);
                 stmt.executeUpdate();
             }
-
             return new Customer(customerId);
-        } catch (SQLException e) {
-            throw new RuntimeException("Error creating or getting customer", e);
+        }catch (SQLException e) {
+            throw new RuntimeException("Error creating customer", e);
         }
     }
 
     @Override
-    public Merchant createOrGetMerchant(long merchantId) {
-        try {
-            String select = "SELECT id FROM merchants WHERE id = ?";
-            try (PreparedStatement stmt = connection.prepareStatement(select)) {
-                stmt.setLong(1, merchantId);
-                ResultSet rs = stmt.executeQuery();
-                if (rs.next()) return new Merchant(merchantId);
+    public Customer getCustomer(long customerId) {
+        String select = "SELECT id FROM customers WHERE id = ?";
+        try(PreparedStatement stmt = connection.prepareStatement(select)){
+            stmt.setLong(1, customerId);
+            ResultSet rs = stmt.executeQuery();
+            if(rs.next()){
+                return new Customer(customerId);
             }
+            return null;
+        }catch (SQLException e) {
+            throw new RuntimeException("Error getting customer", e);
+        }
+    }
 
+    @Override
+    public Merchant createMerchant(long merchantId) {
+        try {
             String insert = "INSERT INTO merchants (id) VALUES (?)";
-            try (PreparedStatement stmt = connection.prepareStatement(insert)) {
+            try(PreparedStatement stmt = connection.prepareStatement(insert)){
                 stmt.setLong(1, merchantId);
                 stmt.executeUpdate();
             }
-
             return new Merchant(merchantId);
-        } catch (SQLException e) {
-            throw new RuntimeException("Error creating or getting merchant", e);
+        }catch (SQLException e) {
+            throw new RuntimeException("Error creating merchant", e);
+        }
+    }
+
+    @Override
+    public Merchant getMerchant(long merchantId) {
+        String select = "SELECT id FROM merchants WHERE id = ?";
+        try(PreparedStatement stmt = connection.prepareStatement(select)){
+            stmt.setLong(1, merchantId);
+            ResultSet rs = stmt.executeQuery();
+            if(rs.next()){
+                return new Merchant(merchantId);
+            }
+            return null;
+        }catch (SQLException e) {
+            throw new RuntimeException("Error getting merchant", e);
         }
     }
 

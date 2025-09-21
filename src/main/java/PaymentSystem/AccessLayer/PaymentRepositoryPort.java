@@ -12,8 +12,13 @@ public interface PaymentRepositoryPort {
     Payment findById(String id);
     List<Payment> findAll(int limit, int offset);
     List<Payment> findPaymentsByCustomerId(long customerId);
-    Customer createOrGetCustomer(long customerId);
-    Merchant createOrGetMerchant(long merchantId);
+
+    Customer createCustomer(long customerId);
+    Customer getCustomer(long customerId);
+
+    Merchant createMerchant(long merchantId);
+    Merchant getMerchant(long merchantId);
+
     void saveRefund(Refund refund);
     List<Refund> findRefundsByPaymentId(String paymentId);
 }

@@ -53,14 +53,17 @@ public class Main {
 
                     System.out.println("Enter Customer ID :");
                     long customerId = scanner.nextLong();
+                    Customer customer = repository.getCustomer(customerId);
+                    if (customer == null) {
+                        customer = repository.createCustomer(customerId);
+                    }
 
                     System.out.println("Enter Merchant ID:");
                     long merchantId = scanner.nextLong();
-
-                    Customer customer = repository.createOrGetCustomer(customerId);
-                    Merchant merchant = repository.createOrGetMerchant(merchantId);
-
-
+                    Merchant merchant = repository.getMerchant(merchantId);
+                    if (merchant == null) {
+                        merchant = repository.createMerchant(merchantId);
+                    }
 
                     try {
                         Payment payment = switch (type){
@@ -119,7 +122,7 @@ public class Main {
                     System.out.println("Enter Payment Id to Refund :");
                     String id  = scanner.next();
 
-                    service.getRefund(id).ifPresentOrElse(
+                    service.createRefundforPayment(id).ifPresentOrElse(
                             refund -> System.out.println("Refund Created: "+refund),
                             () -> System.out.println("Refund Failed, Check Payment Id")
                     );

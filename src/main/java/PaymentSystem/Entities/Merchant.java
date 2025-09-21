@@ -2,6 +2,7 @@ package PaymentSystem.Entities;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -9,13 +10,12 @@ import lombok.ToString;
 @Setter
 @ToString
 @Entity
+@NoArgsConstructor
 @Table(name = "merchants")
 public class Merchant {
     @Id
     private Long id;
     private String merchantName;
-
-    public Merchant() {}
 
     public Merchant(String merchantName) {
         this.merchantName = merchantName;

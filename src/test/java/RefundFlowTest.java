@@ -52,7 +52,7 @@ public class RefundFlowTest {
         assertNotNull(persisted);
         assertEquals(PaymentStatus.SUCCESS, persisted.getStatus());
 
-        Optional<Refund> refundOptional = service.getRefund(payment.getId());
+        Optional<Refund> refundOptional = service.createRefundforPayment(payment.getId());
         assertTrue(refundOptional.isPresent());
 
         Payment refunded = repository.findById(persisted.getId());
@@ -62,7 +62,7 @@ public class RefundFlowTest {
     @Test
     public void testRefundFailsForNonExistentPayment() {
         String notExistentPaymentId = "notExistentPaymentId";
-        Optional<Refund> refundOptional = service.getRefund(notExistentPaymentId);
+        Optional<Refund> refundOptional = service.createRefundforPayment(notExistentPaymentId);
         assertTrue(refundOptional.isEmpty(), "Refund should fail for non-existent payment");
     }
 }
