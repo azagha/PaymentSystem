@@ -23,18 +23,6 @@ public class PaymentService {
             // Set initial status
             payment.setStatus(PaymentStatus.SUCCESS);
 
-            Customer customer = repository.getCustomer(payment.getCustomer().getId());
-            if (customer == null) {
-                customer = repository.createCustomer(payment.getCustomer().getId());
-            }
-            payment.setCustomer(customer);
-
-            Merchant merchant = repository.getMerchant(payment.getMerchant().getId());
-            if (merchant == null) {
-                merchant = repository.createMerchant(payment.getMerchant().getId());
-            }
-            payment.setMerchant(merchant);
-
             // Save payment in DB
             repository.save(payment);
             return Optional.of(payment);

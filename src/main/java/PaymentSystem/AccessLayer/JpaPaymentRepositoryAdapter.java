@@ -23,19 +23,6 @@ public class JpaPaymentRepositoryAdapter implements PaymentRepositoryPort {
     public void save(Payment payment) {
         entityManager.getTransaction().begin();
         try {
-            // Use only interface methods
-            Customer customer = getCustomer(payment.getCustomer().getId());
-            if (customer == null) {
-                customer = createCustomer(payment.getCustomer().getId());
-            }
-            payment.setCustomer(customer);
-
-            Merchant merchant = getMerchant(payment.getMerchant().getId());
-            if (merchant == null) {
-                merchant = createMerchant(payment.getMerchant().getId());
-            }
-            payment.setMerchant(merchant);
-
             if (payment.getId() == null || payment.getId().isEmpty()) {
                 payment.setId(UUID.randomUUID().toString());
             }

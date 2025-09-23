@@ -21,17 +21,6 @@ public class JdbcPaymentRepositoryAdapter implements PaymentRepositoryPort {
     // Save or update a Payment
     @Override
     public void save(Payment payment) {
-        Customer customer = getCustomer(payment.getCustomer().getId());
-        if (customer == null) {
-            customer = createCustomer(payment.getCustomer().getId());
-        }
-        payment.setCustomer(customer);
-
-        Merchant merchant = getMerchant(payment.getMerchant().getId());
-        if (merchant == null) {
-            merchant = createMerchant(payment.getMerchant().getId());
-        }
-        payment.setMerchant(merchant);
         String updateSql = "UPDATE payments SET amount=?, currency=?, status=?, paymentType=?, customer_id=?, merchant_id=?, created_at=? WHERE id=?";
         try (PreparedStatement updateStmt = connection.prepareStatement(updateSql)) {
             updateStmt.setBigDecimal(1, payment.getAmount());
