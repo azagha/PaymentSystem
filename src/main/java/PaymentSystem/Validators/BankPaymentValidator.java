@@ -1,8 +1,7 @@
 package PaymentSystem.Validators;
 
-import PaymentSystem.ConfigReader;
-import PaymentSystem.PaymentValidation;
-import PaymentSystem.Payment;
+import PaymentSystem.Configurations.ConfigReader;
+import PaymentSystem.Entities.Payment;
 import PaymentSystem.InvalidPaymentException;
 
 import java.math.BigDecimal;

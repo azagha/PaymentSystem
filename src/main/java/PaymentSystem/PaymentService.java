@@ -1,50 +1,69 @@
 package PaymentSystem;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.stream.Collectors;
+import PaymentSystem.AccessLayer.PaymentRepositoryPort;
+import PaymentSystem.Entities.Customer;
+import PaymentSystem.Entities.Merchant;
+import PaymentSystem.Entities.Payment;
+import PaymentSystem.Entities.Refund;
+
+import java.util.List;
+import java.util.Optional;
 
 public class PaymentService {
-    private final Map<String, Payment> payments;
-    private final Map<String, Refund> refunds;
 
-    public PaymentService() {
-        this.payments = new HashMap<>();
-        this.refunds = new HashMap<>();
+    private final PaymentRepositoryPort repository;
+
+    public PaymentService(PaymentRepositoryPort repository) {
+        this.repository = repository;
     }
 
     // Add Payment
-    public Optional<Payment> addPayment(BigDecimal amount, String currency, PaymentType paymentType) {
-        Payment newPayment = new Payment(amount, currency, paymentType);
-        newPayment.setStatus(PaymentStatus.SUCCESS);
-        payments.put(newPayment.getId(), newPayment);
-        return Optional.of(newPayment);
+    public Optional<Payment> addPayment(Payment payment) {
+        try {
+            // Set initial status
+            payment.setStatus(PaymentStatus.SUCCESS);
+
+            // Save payment in DB
+            repository.save(payment);
+            return Optional.of(payment);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
-    // List Payments
-    public List<Payment> listPayments() {
-        return payments.values().stream().collect(Collectors.toList());
+    // List Payments "Pagination"
+    public List<Payment> listPayments(int page, int pageSize) {
+        int offset = (page - 1) * pageSize;
+        return repository.findAll(pageSize, offset);
     }
 
     // Change Payment Status to Refunded
     public boolean refundPayment(String id) {
-        Payment payment = payments.get(id);
+        Payment payment = repository.findById(id);
         if (payment != null && payment.getStatus() == PaymentStatus.SUCCESS) {
             payment.setStatus(PaymentStatus.REFUNDED);
+            repository.save(payment);
             return true;
         }
         return false;
     }
 
-    public Optional<Refund> getRefund(String paymentId) {
-        Payment payment = payments.get(paymentId);
-        if (payment == null || payment.getStatus() != PaymentStatus.SUCCESS) {
-            return Optional.empty();
+    // Create Refund (one per payment)
+    public Optional<Refund> createRefundforPayment(String paymentId) {
+        Payment payment = repository.findById(paymentId);
+
+        if (payment == null || payment.getStatus() != PaymentStatus.SUCCESS || payment.getRefund() != null) {
+            return Optional.empty(); // no refund if already refunded or payment invalid
         }
 
-        Refund refund = new Refund(paymentId, payment.getAmount());
-        refunds.put(refund.getId(), refund);
         payment.setStatus(PaymentStatus.REFUNDED);
+
+        Refund refund = new Refund(payment, payment.getAmount());
+        payment.setRefund(refund);  // assign single refund
+        repository.saveRefund(refund);
+
+        repository.save(payment);   // save updated payment
+
         return Optional.of(refund);
     }
 }
