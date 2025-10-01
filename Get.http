@@ -1,0 +1,10 @@
+##GET http://localhost:8080/api/payments
+##Authorization: Basic dXNlcjp1c2VyMTIz
+
+
+GET http://localhost:8080/api/payments/customer/1
+Authorization: Basic dXNlcjp1c2VyMTIz
+
+
+##User = dXNlcjp1c2VyMTIz
+##Admin = YWRtaW46YWRtaW4xMjM=

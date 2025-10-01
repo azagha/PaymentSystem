@@ -1,6 +1,6 @@
 -- Merchants Table
 CREATE TABLE merchants(
-                       id BIGINT PRIMARY KEY,
+                       id VARCHAR(36) PRIMARY KEY,
                        merchant_name VARCHAR(100) NOT NULL
                       );
 
@@ -10,19 +10,19 @@ CREATE TABLE customers(
                        id BIGINT PRIMARY KEY,
                        email VARCHAR(50) UNIQUE NOT NULL ,
                        full_name VARCHAR(50),
-                       created_at TIMESTAMP
+                       created_at TIMESTAMP NOT NULL
                       );
 
 
 CREATE TABLE payments(
                       id BIGINT PRIMARY KEY,
-                      merchant_id BIGINT NOT NULL,   --FK To merch
+                      merchant_id VARCHAR(36) NOT NULL,   --FK To merch
                       customer_id BIGINT NOT NULL,   --FK To customers
-                      amount DECIMAL(10,2),
-                      currency VARCHAR(10),
-                      status VARCHAR(15),
-                      type VARCHAR(15),
-                      created_at TIMESTAMP,
+                      amount DECIMAL(10,2) NOT NULL,
+                      currency VARCHAR(10) NOT NULL,
+                      status VARCHAR(15) NOT NULL,
+                      type VARCHAR(15) NOT NULL,
+                      created_at TIMESTAMP NOT NULL,
                       updated_at TIMESTAMP,
 
 
@@ -32,9 +32,9 @@ CREATE TABLE payments(
 
 CREATE TABLE refunds(
                       id BIGINT PRIMARY KEY,
-                      payment_id BIGINT UNIQUE, --FK TO payments (1:1)
+                      payment_id BIGINT UNIQUE NOT NULL, --FK TO payments (1:1)
                       amount DECIMAL(10, 2) NOT NULL,
-                      created_at TIMESTAMP,
+                      created_at TIMESTAMP NOT NULL,
 
                       CONSTRAINT fk_refund_payment FOREIGN KEY(payment_id) REFERENCES payments(id)
                     );

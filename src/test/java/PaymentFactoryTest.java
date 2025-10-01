@@ -2,6 +2,8 @@ import PaymentSystem.*;
 import PaymentSystem.Entities.Customer;
 import PaymentSystem.Entities.Merchant;
 import PaymentSystem.Entities.Payment;
+import PaymentSystem.Exceptions.InvalidPaymentException;
+import PaymentSystem.Factory.PaymentFactory;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -10,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PaymentFactoryTest {
-    Customer customer = new Customer(1L, "test@example.com", "Test User");
-    Merchant merchant = new Merchant(1L, "Test Merchant");
+    Customer customer = new Customer("12", "test@example.com", "Test User");
+    Merchant merchant = new Merchant("22", "Test Merchant");
     @Test
     void testCreateWalletPayment() throws InvalidPaymentException {
         Payment payment = PaymentFactory.CreateWalletPayment(new BigDecimal("100"), "EUR", customer, merchant);

@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import jakarta.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
 
 @Getter
 @Setter
@@ -16,6 +17,8 @@ import jakarta.persistence.*;
 @Table(name = "payments")
 public class Payment {
     @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private String id;
     private BigDecimal amount;
     private String currency;
@@ -27,11 +30,11 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private PaymentType paymentType;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "merchant_id")
     private Merchant merchant;
 
@@ -41,7 +44,6 @@ public class Payment {
 
     // Constructor for new payment
     public Payment(BigDecimal amount, String currency, PaymentType paymentType, Customer customer, Merchant merchant) {
-        this.id = UUID.randomUUID().toString();
         this.amount = amount;
         this.currency = currency;
         this.status = PaymentStatus.PENDING;
@@ -53,7 +55,6 @@ public class Payment {
 
     // Constructor for database retrieval
     public Payment(String id, BigDecimal amount, String currency, PaymentStatus status, PaymentType paymentType, Customer customer, LocalDateTime createdAt) {
-        this.id = id;
         this.amount = amount;
         this.currency = currency;
         this.status = status;
@@ -63,20 +64,33 @@ public class Payment {
     }
 
     // For JDBC/manual mapping without customer and merchant
-    public Payment(String id, BigDecimal amount, String currency, PaymentStatus status, PaymentType paymentType, LocalDateTime createdAt) {
-        this.id = id;
+    public Payment(BigDecimal amount, String currency, PaymentStatus status, PaymentType paymentType, LocalDateTime createdAt) {
         this.amount = amount;
         this.currency = currency;
         this.status = status;
         this.paymentType = paymentType;
     }
 
+    // Constructor for JDBC / database retrieval including id
+    public Payment(String id, BigDecimal amount, String currency, PaymentStatus status, PaymentType paymentType,
+                   Customer customer, Merchant merchant, LocalDateTime createdAt) {
+        this.id = id;
+        this.amount = amount;
+        this.currency = currency;
+        this.status = status;
+        this.paymentType = paymentType;
+        this.customer = customer;
+        this.merchant = merchant;
+        this.createdAt = createdAt;
+    }
+
+
+
     public Payment(String id) {
         this.id = id;
     }
 
-    public Payment(String id, BigDecimal amount, String currency, PaymentStatus status, PaymentType paymentType, Customer customer, Merchant merchant, LocalDateTime createdAt) {
-        this.id = id;
+    public Payment(BigDecimal amount, String currency, PaymentStatus status, PaymentType paymentType, Customer customer, Merchant merchant, LocalDateTime createdAt) {
         this.amount = amount;
         this.currency = currency;
         this.status = status;

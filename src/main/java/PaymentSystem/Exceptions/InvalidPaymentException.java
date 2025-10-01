@@ -1,4 +1,4 @@
-package PaymentSystem;
+package PaymentSystem.Exceptions;
 
 //Error that happens when a payment is invalid.
 public class InvalidPaymentException extends Exception {
