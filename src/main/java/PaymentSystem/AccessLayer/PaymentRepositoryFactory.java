@@ -1,4 +1,6 @@
+/*
 package PaymentSystem.AccessLayer;
+
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -59,3 +61,4 @@ public class PaymentRepositoryFactory {
         }
     }
 }
+ */

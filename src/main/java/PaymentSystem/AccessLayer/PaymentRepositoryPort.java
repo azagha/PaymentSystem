@@ -6,18 +6,17 @@ import PaymentSystem.Entities.Merchant;
 import PaymentSystem.Entities.Refund;
 
 import java.util.List;
-
 public interface PaymentRepositoryPort {
     void save(Payment payment);
     Payment findById(String id);
     List<Payment> findAll(int limit, int offset);
-    List<Payment> findPaymentsByCustomerId(long customerId);
+    List<Payment> findPaymentsByCustomerId(String customerId);
 
-    Customer createCustomer(long customerId);
-    Customer getCustomer(long customerId);
+    Customer createCustomer(String customerId);
+    Customer getCustomer(String customerId);
 
-    Merchant createMerchant(long merchantId);
-    Merchant getMerchant(long merchantId);
+    Merchant createMerchant(String merchantId);
+    Merchant getMerchant(String merchantId);
 
     void saveRefund(Refund refund);
     List<Refund> findRefundsByPaymentId(String paymentId);

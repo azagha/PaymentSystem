@@ -1,8 +1,11 @@
-package PaymentSystem;
+package PaymentSystem.Factory;
 
 import PaymentSystem.Entities.Customer;
 import PaymentSystem.Entities.Merchant;
 import PaymentSystem.Entities.Payment;
+import PaymentSystem.Exceptions.InvalidPaymentException;
+import PaymentSystem.PaymentStatus;
+import PaymentSystem.PaymentType;
 import PaymentSystem.Validators.BankPaymentValidator;
 import PaymentSystem.Validators.CardPaymentValidator;
 import PaymentSystem.Validators.WalletPaymentValidator;

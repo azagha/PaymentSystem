@@ -4,6 +4,7 @@ import PaymentSystem.*;
 import PaymentSystem.Entities.Customer;
 import PaymentSystem.Entities.Merchant;
 import PaymentSystem.Entities.Payment;
+import PaymentSystem.Exceptions.InvalidPaymentException;
 import PaymentSystem.Validators.BankPaymentValidator;
 import org.junit.jupiter.api.Test;
 
@@ -14,8 +15,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class BankPaymentValidatorTest {
     private final BankPaymentValidator validator = new BankPaymentValidator();
 
-    Customer customer = new Customer(1L, "test@example.com", "Test User");
-    Merchant merchant = new Merchant(1L, "Test Merchant");
+    Customer customer = new Customer("23", "test@example.com", "Test User");
+    Merchant merchant = new Merchant("12", "Test Merchant");
 
     //Valid Case
     @Test

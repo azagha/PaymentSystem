@@ -1,0 +1,19 @@
+##POST http://localhost:8080/api/payments/4ad3e458-ffd4-491a-af16-0423c2772ab4/refund
+##Authorization: Basic YWRtaW46YWRtaW4xMjM=
+
+##User = dXNlcjp1c2VyMTIz
+##Admin = YWRtaW46YWRtaW4xMjM=
+
+##POST http://localhost:8080/api/payments
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4xMjM=
+
+{
+  "customerId": "1",
+  "merchantId": "35",
+  "amount": 142,
+  "currency": "JOD",
+  "paymentType": "WALLET"
+}
+
+

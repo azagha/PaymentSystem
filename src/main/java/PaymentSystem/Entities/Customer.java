@@ -3,6 +3,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.GenericGenerator;
+
 import java.time.LocalDateTime;
 
 @Getter
@@ -12,15 +14,19 @@ import java.time.LocalDateTime;
 @Table(name = "customers")
 public class Customer {
     @Id
-    private Long id;
+    @Column(updatable = false, nullable = false)
+    private String id;
+    @Column(nullable = true)
     private String email;
+    @Column(nullable = true)
     private String fullName;
     private LocalDateTime createdDate;
 
     public Customer(){}
 
-    public Customer(Long id) {
+    public Customer(String id) {
         this.id = id;
+        this.createdDate = LocalDateTime.now();
     }
 
     public Customer(String email, String fullName) {
@@ -30,7 +36,7 @@ public class Customer {
     }
 
     // For Testing
-    public Customer(Long id, String email, String fullName) {
+    public Customer(String id, String email, String fullName) {
         this.id = id;
         this.email = email;
         this.fullName = fullName;

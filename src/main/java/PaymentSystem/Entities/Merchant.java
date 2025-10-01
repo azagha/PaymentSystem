@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.GenericGenerator;
 
 @Getter
 @Setter
@@ -14,18 +15,21 @@ import lombok.ToString;
 @Table(name = "merchants")
 public class Merchant {
     @Id
-    private Long id;
+    @Column(updatable = false, nullable = false)
+    private String id;
+    @Column(nullable = true)
     private String merchantName;
 
     public Merchant(String merchantName) {
         this.merchantName = merchantName;
     }
 
-    public Merchant(long id) {
+    public Merchant(String id, boolean isId) {
         this.id = id;
+        this.merchantName = "Default Merchant";
     }
 
-    public Merchant(Long id, String merchantName) {
+    public Merchant(String id, String merchantName) {
         this.id = id;
         this.merchantName = merchantName;
     }
