@@ -37,35 +37,6 @@ public class PaymentService {
         this.merchantRepository = merchantRepository;
     }
 
-    // Add Payment
-    @Transactional
-    public Optional<Payment> addPayment(Payment payment){
-        if (payment.getAmount() == null || payment.getAmount().compareTo(BigDecimal.ONE) < 0) {
-            throw new IllegalArgumentException("Amount must be ≥ 1");
-        }
-
-        List<String> allowedCurrencies = ConfigReader.getCurrencies();
-        if (!allowedCurrencies.contains(payment.getCurrency())) {
-            throw new IllegalArgumentException("Currency not allowed");
-        }
-
-        Customer customer = customerRepository.findById(payment.getCustomer().getId())
-                .orElseGet(() -> customerRepository.save(payment.getCustomer()));
-        payment.setCustomer(customer);
-
-        Merchant merchant = merchantRepository.findById(payment.getMerchant().getId())
-                .orElseGet(() -> merchantRepository.save(payment.getMerchant()));
-        payment.setMerchant(merchant);
-
-        if (payment.getStatus() == null) {
-            payment.setStatus(PaymentStatus.SUCCESS);
-        }
-
-        paymentRepository.save(payment);
-        return Optional.of(payment);
-
-    }
-
     // List Payments "Pagination"
     @Transactional
     public List<Payment> listPayments(int page, int pageSize) {
@@ -144,23 +115,4 @@ public class PaymentService {
     }
 
 
-
-    // Create Refund (one per payment)
-    @Transactional
-    public Optional<Refund> createRefundforPayment(String paymentId) {
-        Payment payment = paymentRepository.findById(paymentId).orElse(null);
-
-        if (payment == null || payment.getStatus() != PaymentStatus.SUCCESS || payment.getRefund() != null) {
-            return Optional.empty();
-        }
-
-        payment.setStatus(PaymentStatus.REFUNDED);
-
-        Refund refund = new Refund(payment, payment.getAmount());
-        payment.setRefund(refund);
-        refundRepository.save(refund);
-
-        paymentRepository.save(payment);
-        return Optional.of(refund);
-    }
 }
