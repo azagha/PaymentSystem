@@ -10,6 +10,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.http.ContentDisposition.builder;
+
 public class JdbcPaymentRepositoryAdapter implements PaymentRepositoryPort {
 
     private final Connection connection;
@@ -177,7 +179,7 @@ public class JdbcPaymentRepositoryAdapter implements PaymentRepositoryPort {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Refund refund = new Refund(
-                        new Payment(rs.getString("payment_id")), // minimal Payment object with ID
+                        Payment.builder().id(rs.getString("payment_id")).build(), // minimal Payment object with ID
                         rs.getBigDecimal("amount")
                 );
                 refund.setId(rs.getString("id"));
@@ -194,16 +196,19 @@ public class JdbcPaymentRepositoryAdapter implements PaymentRepositoryPort {
     private Payment mapPayment(ResultSet rs) throws SQLException {
         Customer customer = new Customer(rs.getString("customer_id"));
         Merchant merchant = new Merchant(rs.getString("merchant_id"));
-        Payment payment = new Payment(
-                rs.getString("id"),
-                rs.getBigDecimal("amount"),
-                rs.getString("currency"),
-                PaymentStatus.valueOf(rs.getString("status").toUpperCase()),
-                PaymentType.valueOf(rs.getString("paymentType").toUpperCase()),
-                customer,
-                merchant,
-                rs.getTimestamp("created_at").toLocalDateTime()
-        );
+
+        Payment payment = Payment.builder()
+                .id(rs.getString("id"))
+                .amount(rs.getBigDecimal("amount"))
+                .currency(rs.getString("currency"))
+                .status(PaymentStatus.valueOf(rs.getString("status").toUpperCase()))
+                .paymentType(PaymentType.valueOf(rs.getString("paymentType").toUpperCase()))
+                .customer(customer)
+                .merchant(merchant)
+                .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                .build();
+
         return payment;
     }
+
 }

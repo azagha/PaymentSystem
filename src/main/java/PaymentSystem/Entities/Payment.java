@@ -1,16 +1,19 @@
 package PaymentSystem.Entities;
 
-import java.math.BigDecimal;
+import
+        java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import PaymentSystem.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 
+@Builder
 @Getter
 @Setter
 @Entity
@@ -19,6 +22,7 @@ public class Payment {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(updatable = false, nullable = false)
     private String id;
     private BigDecimal amount;
     private String currency;
@@ -31,76 +35,32 @@ public class Payment {
     private PaymentType paymentType;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "customer_id")
+    @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "merchant_id")
+    @JoinColumn(name = "merchant_id", nullable = false)
     private Merchant merchant;
 
     @OneToOne(mappedBy = "payment", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private Refund refund;
 
-    // Constructor for new payment
-    public Payment(BigDecimal amount, String currency, PaymentType paymentType, Customer customer, Merchant merchant) {
+    public Payment(String transactionId, BigDecimal amount, String currency,
+                   LocalDateTime paymentDate, PaymentStatus status,
+                   PaymentType type, Customer customer,
+                   Merchant merchant, Refund refund) {
+        this.id = transactionId;
         this.amount = amount;
         this.currency = currency;
-        this.status = PaymentStatus.PENDING;
-        this.paymentType = paymentType;
+        this.createdAt = paymentDate;
+        this.status = status;
+        this.paymentType = type;
         this.customer = customer;
         this.merchant = merchant;
-        this.createdAt = LocalDateTime.now();
+        this.refund = refund;
     }
 
-    // Constructor for database retrieval
-    public Payment(String id, BigDecimal amount, String currency, PaymentStatus status, PaymentType paymentType, Customer customer, LocalDateTime createdAt) {
-        this.amount = amount;
-        this.currency = currency;
-        this.status = status;
-        this.paymentType = paymentType;
-        this.customer = customer;
-        this.createdAt = createdAt;
-    }
-
-    // For JDBC/manual mapping without customer and merchant
-    public Payment(BigDecimal amount, String currency, PaymentStatus status, PaymentType paymentType, LocalDateTime createdAt) {
-        this.amount = amount;
-        this.currency = currency;
-        this.status = status;
-        this.paymentType = paymentType;
-    }
-
-    // Constructor for JDBC / database retrieval including id
-    public Payment(String id, BigDecimal amount, String currency, PaymentStatus status, PaymentType paymentType,
-                   Customer customer, Merchant merchant, LocalDateTime createdAt) {
-        this.id = id;
-        this.amount = amount;
-        this.currency = currency;
-        this.status = status;
-        this.paymentType = paymentType;
-        this.customer = customer;
-        this.merchant = merchant;
-        this.createdAt = createdAt;
-    }
-
-
-
-    public Payment(String id) {
-        this.id = id;
-    }
-
-    public Payment(BigDecimal amount, String currency, PaymentStatus status, PaymentType paymentType, Customer customer, Merchant merchant, LocalDateTime createdAt) {
-        this.amount = amount;
-        this.currency = currency;
-        this.status = status;
-        this.paymentType = paymentType;
-        this.customer = customer;
-        this.merchant = merchant;
-        this.createdAt = createdAt;
-    }
-
-    // Constructor for JPA
     protected Payment() {}
 
     @Override

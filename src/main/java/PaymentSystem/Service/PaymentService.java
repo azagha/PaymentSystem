@@ -95,13 +95,13 @@ public class PaymentService {
                 });
 
 
-        Payment payment = new Payment(
-                request.getAmount(),
-                request.getCurrency(),
-                request.getPaymentType(),
-                customer,
-                merchant
-        );
+        Payment payment = Payment.builder()
+                .amount(request.getAmount())
+                .currency(request.getCurrency())
+                .paymentType(request.getPaymentType())
+                .customer(customer)
+                .merchant(merchant)
+                .build();
 
         payment.setStatus(PaymentStatus.SUCCESS);
 

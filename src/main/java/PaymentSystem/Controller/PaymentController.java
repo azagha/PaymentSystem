@@ -28,8 +28,10 @@ public class PaymentController {
 
 
     @GetMapping
-    public List<PaymentResponse> getPayments() {
-        return service.listPayments(1, 10)
+    public List<PaymentResponse> getPayments(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "1") int size) {
+        return service.listPayments(page, size)
                 .stream()
                 .map(payment -> {
                     PaymentResponse response = new PaymentResponse();
