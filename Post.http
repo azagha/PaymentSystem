@@ -1,0 +1,19 @@
+#POST http://localhost:8080/api/payments/ec90d0e0-502b-45fa-af71-0b2e60947023/refund
+#Authorization: Basic YWRtaW46YWRtaW4xMjM=
+
+##User = dXNlcjp1c2VyMTIz
+##Admin = YWRtaW46YWRtaW4xMjM=
+
+POST http://localhost:8080/api/payments
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4xMjM=
+
+{
+  "amount": 50.0,
+  "currency": "USD",
+  "paymentType": "CARD",
+  "customerId": "123",
+  "merchantId": "456"
+}
+
+

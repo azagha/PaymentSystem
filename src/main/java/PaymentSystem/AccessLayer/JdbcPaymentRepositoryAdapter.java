@@ -10,6 +10,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.http.ContentDisposition.builder;
+
 public class JdbcPaymentRepositoryAdapter implements PaymentRepositoryPort {
 
     private final Connection connection;
@@ -27,8 +29,8 @@ public class JdbcPaymentRepositoryAdapter implements PaymentRepositoryPort {
             updateStmt.setString(2, payment.getCurrency());
             updateStmt.setString(3, payment.getStatus().name());
             updateStmt.setString(4, payment.getPaymentType().name());
-            updateStmt.setLong(5, payment.getCustomer().getId());
-            updateStmt.setLong(6, payment.getMerchant().getId());
+            updateStmt.setString(5, payment.getCustomer().getId());
+            updateStmt.setString(6, payment.getMerchant().getId());
             updateStmt.setTimestamp(7, Timestamp.valueOf(payment.getCreatedAt()));
             updateStmt.setString(8, payment.getId());
 
@@ -43,8 +45,8 @@ public class JdbcPaymentRepositoryAdapter implements PaymentRepositoryPort {
                 insertStmt.setString(3, payment.getCurrency());
                 insertStmt.setString(4, payment.getStatus().name());
                 insertStmt.setString(5, payment.getPaymentType().name());
-                insertStmt.setLong(6, payment.getCustomer().getId());
-                insertStmt.setLong(7, payment.getMerchant().getId());
+                insertStmt.setString(6, payment.getCustomer().getId());
+                insertStmt.setString(7, payment.getMerchant().getId());
                 insertStmt.setTimestamp(8, Timestamp.valueOf(payment.getCreatedAt()));
                 insertStmt.executeUpdate();
             }
@@ -83,11 +85,11 @@ public class JdbcPaymentRepositoryAdapter implements PaymentRepositoryPort {
     }
 
     @Override
-    public List<Payment> findPaymentsByCustomerId(long customerId) {
+    public List<Payment> findPaymentsByCustomerId(String customerId) {
         String sql = "SELECT * FROM payments WHERE customer_id = ? ORDER BY created_at DESC";
         List<Payment> payments = new ArrayList<>();
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setLong(1, customerId);
+            stmt.setString(1, customerId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) payments.add(mapPayment(rs));
         } catch (SQLException e) {
@@ -97,11 +99,11 @@ public class JdbcPaymentRepositoryAdapter implements PaymentRepositoryPort {
     }
 
     @Override
-    public Customer createCustomer(long customerId) {
+    public Customer createCustomer(String customerId) {
         try {
             String insert = "INSERT INTO customers (id) VALUES (?)";
             try (PreparedStatement stmt = connection.prepareStatement(insert)) {
-                stmt.setLong(1, customerId);
+                stmt.setString(1, customerId);
                 stmt.executeUpdate();
             }
             return new Customer(customerId);
@@ -111,10 +113,10 @@ public class JdbcPaymentRepositoryAdapter implements PaymentRepositoryPort {
     }
 
     @Override
-    public Customer getCustomer(long customerId) {
+    public Customer getCustomer(String customerId) {
         String select = "SELECT id FROM customers WHERE id = ?";
         try(PreparedStatement stmt = connection.prepareStatement(select)){
-            stmt.setLong(1, customerId);
+            stmt.setString(1, customerId);
             ResultSet rs = stmt.executeQuery();
             if(rs.next()){
                 return new Customer(customerId);
@@ -126,11 +128,11 @@ public class JdbcPaymentRepositoryAdapter implements PaymentRepositoryPort {
     }
 
     @Override
-    public Merchant createMerchant(long merchantId) {
+    public Merchant createMerchant(String merchantId) {
         try {
             String insert = "INSERT INTO merchants (id) VALUES (?)";
             try(PreparedStatement stmt = connection.prepareStatement(insert)){
-                stmt.setLong(1, merchantId);
+                stmt.setString(1, merchantId);
                 stmt.executeUpdate();
             }
             return new Merchant(merchantId);
@@ -140,10 +142,10 @@ public class JdbcPaymentRepositoryAdapter implements PaymentRepositoryPort {
     }
 
     @Override
-    public Merchant getMerchant(long merchantId) {
+    public Merchant getMerchant(String merchantId) {
         String select = "SELECT id FROM merchants WHERE id = ?";
         try(PreparedStatement stmt = connection.prepareStatement(select)){
-            stmt.setLong(1, merchantId);
+            stmt.setString(1, merchantId);
             ResultSet rs = stmt.executeQuery();
             if(rs.next()){
                 return new Merchant(merchantId);
@@ -177,7 +179,7 @@ public class JdbcPaymentRepositoryAdapter implements PaymentRepositoryPort {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Refund refund = new Refund(
-                        new Payment(rs.getString("payment_id")), // minimal Payment object with ID
+                        Payment.builder().id(rs.getString("payment_id")).build(), // minimal Payment object with ID
                         rs.getBigDecimal("amount")
                 );
                 refund.setId(rs.getString("id"));
@@ -192,18 +194,21 @@ public class JdbcPaymentRepositoryAdapter implements PaymentRepositoryPort {
 
     // Helper to map ResultSet to Payment object
     private Payment mapPayment(ResultSet rs) throws SQLException {
-        Customer customer = new Customer(rs.getLong("customer_id"));
-        Merchant merchant = new Merchant(rs.getLong("merchant_id"));
-        Payment payment = new Payment(
-                rs.getString("id"),
-                rs.getBigDecimal("amount"),
-                rs.getString("currency"),
-                PaymentStatus.valueOf(rs.getString("status").toUpperCase()),
-                PaymentType.valueOf(rs.getString("paymentType").toUpperCase()),
-                customer,
-                merchant,
-                rs.getTimestamp("created_at").toLocalDateTime()
-        );
+        Customer customer = new Customer(rs.getString("customer_id"));
+        Merchant merchant = new Merchant(rs.getString("merchant_id"));
+
+        Payment payment = Payment.builder()
+                .id(rs.getString("id"))
+                .amount(rs.getBigDecimal("amount"))
+                .currency(rs.getString("currency"))
+                .status(PaymentStatus.valueOf(rs.getString("status").toUpperCase()))
+                .paymentType(PaymentType.valueOf(rs.getString("paymentType").toUpperCase()))
+                .customer(customer)
+                .merchant(merchant)
+                .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
+                .build();
+
         return payment;
     }
+
 }
