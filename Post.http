@@ -9,11 +9,11 @@ Content-Type: application/json
 Authorization: Basic YWRtaW46YWRtaW4xMjM=
 
 {
-  "amount": 50.0,
-  "currency": "USD",
-  "paymentType": "CARD",
-  "customerId": "123",
-  "merchantId": "456"
+  "amount": 9.08,
+  "currency": "JOD",
+  "paymentType": "BANK",
+  "customerId": "3",
+  "merchantId": "1"
 }
 
 
